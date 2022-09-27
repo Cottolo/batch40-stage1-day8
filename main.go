@@ -80,6 +80,10 @@ type Project struct {
 	NextJs             string
 	ReactJs            string
 	TypeScript         string
+	Node               string
+	Next               string
+	React              string
+	Type               string
 }
 
 // ARRAY
@@ -103,6 +107,23 @@ func addProject(w http.ResponseWriter, r *http.Request) {
 	var start, _ = time.Parse(layout, startDate)
 	var end, _ = time.Parse(layout, endDate)
 	var duration = math.Round(end.Sub(start).Hours() / 24 / 30)
+	var node = ""
+	var next = ""
+	var react = ""
+	var typeS = ""
+
+	if nodeJs != "" {
+		node = "Node Js"
+	}
+	if nextJs != "" {
+		next = "Next Js"
+	}
+	if reactJs != "" {
+		react = "React Js"
+	}
+	if typeScript != "" {
+		typeS = "TypeScript"
+	}
 
 	// fmt.Println("Project Name :" + r.PostForm.Get("project-name"))
 	// fmt.Println("Start Date :" + r.PostForm.Get("start-date"))
@@ -128,6 +149,10 @@ func addProject(w http.ResponseWriter, r *http.Request) {
 		TypeScript:         typeScript,
 		Duration:           duration,
 		Id:                 len(dataProject),
+		Node:               node,
+		Next:               next,
+		React:              react,
+		Type:               typeS,
 	}
 
 	//PUSH
@@ -175,6 +200,10 @@ func detailProject(w http.ResponseWriter, r *http.Request) {
 				NodeJs:             data.NodeJs,
 				TypeScript:         data.TypeScript,
 				Duration:           data.Duration,
+				Node:               data.Node,
+				Next:               data.Next,
+				React:              data.React,
+				Type:               data.Type,
 			}
 		}
 	}
@@ -213,6 +242,7 @@ func formEditeProject(w http.ResponseWriter, r *http.Request) {
 	var ProjectDetail = Project{}
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 	// fmt.Println(id)
+
 	for i, data := range dataProject {
 		if id == i {
 			ProjectDetail = Project{
@@ -226,6 +256,10 @@ func formEditeProject(w http.ResponseWriter, r *http.Request) {
 				TypeScript:         data.TypeScript,
 				Duration:           data.Duration,
 				Id:                 data.Id,
+				Node:               data.Node,
+				Next:               data.Next,
+				React:              data.React,
+				Type:               data.Type,
 			}
 		}
 	}
@@ -258,6 +292,23 @@ func editeProject(w http.ResponseWriter, r *http.Request) {
 	var start, _ = time.Parse(layout, startDate)
 	var end, _ = time.Parse(layout, endDate)
 	var duration = math.Round(end.Sub(start).Hours() / 24 / 30)
+	var node = ""
+	var next = ""
+	var react = ""
+	var typeS = ""
+
+	if nodeJs != "" {
+		node = "Node Js"
+	}
+	if nextJs != "" {
+		next = "Next Js"
+	}
+	if reactJs != "" {
+		react = "React Js"
+	}
+	if typeScript != "" {
+		typeS = "TypeScript"
+	}
 
 	var editeProject = Project{
 		ProjectName:        projectName,
@@ -269,9 +320,13 @@ func editeProject(w http.ResponseWriter, r *http.Request) {
 		NodeJs:             nodeJs,
 		TypeScript:         typeScript,
 		Duration:           duration,
+		Node:               node,
+		Next:               next,
+		React:              react,
+		Type:               typeS,
 	}
 
 	dataProject[index] = editeProject
-	fmt.Println(index)
+	// fmt.Println(index)
 	http.Redirect(w, r, "/home", http.StatusMovedPermanently)
 }
