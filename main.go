@@ -31,7 +31,8 @@ func main() {
 	route.HandleFunc("/project", formAddProject).Methods("GET")
 	route.HandleFunc("/add-project", addProject).Methods("POST")
 	route.HandleFunc("/delete-project/{id}", deleteProject).Methods("GET")
-	route.HandleFunc("/edite-project/{id}", editeProject).Methods("GET")
+	route.HandleFunc("/edite-project/{id}", formEditeProject).Methods("GET")
+	route.HandleFunc("/edite-project/{index}", editeProject).Methods("POST")
 
 	fmt.Println("server running at localhost:5000")
 	http.ListenAndServe("localhost:5000", route)
@@ -69,6 +70,7 @@ func formAddProject(w http.ResponseWriter, r *http.Request) {
 
 // Type Data
 type Project struct {
+	Id                 int
 	ProjectName        string
 	StartDate          string
 	EndDate            string
@@ -125,6 +127,7 @@ func addProject(w http.ResponseWriter, r *http.Request) {
 		NodeJs:             nodeJs,
 		TypeScript:         typeScript,
 		Duration:           duration,
+		Id:                 len(dataProject),
 	}
 
 	//PUSH
@@ -157,13 +160,9 @@ func detailProject(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("not found 404"))
 		return
 	}
-
 	var ProjectDetail = Project{}
-
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
-
 	// fmt.Println(id)
-
 	for i, data := range dataProject {
 		if id == i {
 			ProjectDetail = Project{
@@ -202,18 +201,77 @@ func deleteProject(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func editeProject(w http.ResponseWriter, r *http.Request) {
+func formEditeProject(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	var tmpl, error = template.ParseFiles("views/project.html")
+	var tmpl, err = template.ParseFiles("views/edite-project.html")
 
-	if error != nil {
-		w.Write([]byte("not found 404"))
+	if err != nil {
+		w.Write([]byte("WHAT A PITTY : " + err.Error()))
 		return
 	}
 
+	var ProjectDetail = Project{}
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+	// fmt.Println(id)
+	for i, data := range dataProject {
+		if id == i {
+			ProjectDetail = Project{
+				ProjectName:        data.ProjectName,
+				ProjectDescription: data.ProjectDescription,
+				StartDate:          data.StartDate,
+				EndDate:            data.EndDate,
+				NextJs:             data.NextJs,
+				ReactJs:            data.ReactJs,
+				NodeJs:             data.NodeJs,
+				TypeScript:         data.TypeScript,
+				Duration:           data.Duration,
+				Id:                 data.Id,
+			}
+		}
+	}
 
-	fmt.Println(id)
+	// OBJECT
+	data := map[string]interface{}{
+		"EditeProject": ProjectDetail,
+	}
 
-	tmpl.Execute(w, nil)
+	tmpl.Execute(w, data)
+}
+
+func editeProject(w http.ResponseWriter, r *http.Request) {
+	error := r.ParseForm()
+	if error != nil {
+		log.Fatal(error)
+	}
+
+	index, _ := strconv.Atoi(mux.Vars(r)["index"])
+
+	var projectName = r.PostForm.Get("project-name")
+	var startDate = r.PostForm.Get("start-date")
+	var endDate = r.PostForm.Get("end-date")
+	var projectDescription = r.PostForm.Get("project-description")
+	var nodeJs = r.PostForm.Get("node-js")
+	var nextJs = r.PostForm.Get("next-js")
+	var reactJs = r.PostForm.Get("react-js")
+	var typeScript = r.PostForm.Get("typescript")
+	var layout = "2006-01-02"
+	var start, _ = time.Parse(layout, startDate)
+	var end, _ = time.Parse(layout, endDate)
+	var duration = math.Round(end.Sub(start).Hours() / 24 / 30)
+
+	var editeProject = Project{
+		ProjectName:        projectName,
+		ProjectDescription: projectDescription,
+		StartDate:          startDate,
+		EndDate:            endDate,
+		NextJs:             nextJs,
+		ReactJs:            reactJs,
+		NodeJs:             nodeJs,
+		TypeScript:         typeScript,
+		Duration:           duration,
+	}
+
+	dataProject[index] = editeProject
+	fmt.Println(index)
+	http.Redirect(w, r, "/home", http.StatusMovedPermanently)
 }
