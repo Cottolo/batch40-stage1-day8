@@ -239,34 +239,11 @@ func formEditeProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var ProjectDetail = Project{}
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 	// fmt.Println(id)
 
-	for i, data := range dataProject {
-		if id == i {
-			ProjectDetail = Project{
-				ProjectName:        data.ProjectName,
-				ProjectDescription: data.ProjectDescription,
-				StartDate:          data.StartDate,
-				EndDate:            data.EndDate,
-				NextJs:             data.NextJs,
-				ReactJs:            data.ReactJs,
-				NodeJs:             data.NodeJs,
-				TypeScript:         data.TypeScript,
-				Duration:           data.Duration,
-				Id:                 data.Id,
-				Node:               data.Node,
-				Next:               data.Next,
-				React:              data.React,
-				Type:               data.Type,
-			}
-		}
-	}
-
-	// OBJECT
 	data := map[string]interface{}{
-		"EditeProject": ProjectDetail,
+		"Id": id,
 	}
 
 	tmpl.Execute(w, data)
